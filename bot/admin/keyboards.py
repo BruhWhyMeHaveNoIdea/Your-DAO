@@ -9,7 +9,7 @@ user_menu_keyboard = InlineKeyboardMarkup(inline_keyboard=user_menu_buttons)
 
 admin_menu_buttons = [
     [
-        InlineKeyboardButton(text="Добавить пользователя", callback_data="add_user")
+        InlineKeyboardButton(text="Изменить доступ пользователю", callback_data="add_user")
     ],
     [
         InlineKeyboardButton(text="Забанить пользователя", callback_data="ban_user")
@@ -18,7 +18,7 @@ admin_menu_buttons = [
         InlineKeyboardButton(text="Добавить админа", callback_data="add_admin")
     ],
     [
-        InlineKeyboardButton(text="Удалить", callback_data="delete_admin")
+        InlineKeyboardButton(text="Удалить админа", callback_data="delete_admin")
     ],
     [
         InlineKeyboardButton(text="Рассылка", callback_data="send_newsletter")

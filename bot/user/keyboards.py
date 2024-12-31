@@ -31,6 +31,9 @@ def start_keyboard():
         [
             InlineKeyboardButton(text="Личный кабинет", callback_data="personal_account")
         ],
+        [
+            InlineKeyboardButton(text="Оставить отзыв", callback_data="left_review")
+        ]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -53,7 +56,7 @@ def therapy_keyboard():
 def video_materials_keyboard():
     buttons = [
         [
-            InlineKeyboardButton(text="Модуль - Игры людей (1 модуль)", callback_data="people_games")
+            InlineKeyboardButton(text="Модуль - Игры людей", callback_data="people_games")
         ],
         [
             InlineKeyboardButton(text="Модуль - Контакт с собой", callback_data="contact_with_yourself")
@@ -129,7 +132,7 @@ def people_games_theme():
 
 
 to_subscription_keyboard = InlineKeyboardMarkup(
-    inline_keyboard=[[InlineKeyboardButton(text="Приобрести подписку", callback_data="")]])
+    inline_keyboard=[[InlineKeyboardButton(text="Приобрести подписку", callback_data="subscription")]])
 
 
 def contact_with_yourself():
@@ -173,8 +176,8 @@ def themes_homework(theme: str, num: int):
 
 def return_themes(theme):
     name = utils.recieve_num(theme - 1, 2)
-    print(name, theme)
     button = [[InlineKeyboardButton(text="Назад к уроку", callback_data=f"{name}")]]
+    print(button)
     return InlineKeyboardMarkup(inline_keyboard=button)
 
 
@@ -241,7 +244,7 @@ practices_and_techniques_keyboard_data = {
     2: {
         0: lambda: generate_keyboard([
             ("Практика любви к себе", "practices_and_techniques_2_1_0"),
-            ("Практика Таблица чувств благодарности", "practices_and_techniques_2_2_0"),
+            ("Таблица благодарности", "practices_and_techniques_2_2_0"),
             ("Практика прощения и отпускания", "practices_and_techniques_2_3_0"),
             ("Назад", "practices_and_techniques")
         ]),
@@ -286,11 +289,13 @@ practices_and_techniques_keyboard_data = {
     },
     4: {
         1: lambda: generate_keyboard([
+            ("Поделиться впечатлениями", "practices_and_techniques_4_1_1"),
             ("Назад", "practices_and_techniques")
         ])
     },
     5: {
         1: lambda: generate_keyboard([
+            ("Поделиться впечатлениями", "practices_and_techniques_5_1_1"),
             ("Назад", "practices_and_techniques")
         ])
     }
@@ -308,9 +313,12 @@ def back_practices_and_techniques_keyboard(i, j):
 
 def subscriptions_choose():
     buttons = [[
-        InlineKeyboardButton(text="Первый вариант подписки", callback_data="first_subscription")
+        InlineKeyboardButton(text="990 - Доступ на 30 дней", callback_data="first_subscription")
     ],
     [
-        InlineKeyboardButton(text="Второй вариант подписки", callback_data="second_subscription")
+        InlineKeyboardButton(text="1590 - Доступ + Твой ментор", callback_data="second_subscription")
+    ],
+    [
+        InlineKeyboardButton(text="В меню", callback_data="start")
     ]]
     return InlineKeyboardMarkup(inline_keyboard=buttons)

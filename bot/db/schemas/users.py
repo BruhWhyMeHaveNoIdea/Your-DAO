@@ -2,13 +2,13 @@ from xmlrpc.client import DateTime
 
 
 from bot.db.db import Base
-from sqlalchemy import Column, Integer, Boolean, String, DateTime
+from sqlalchemy import Column, Integer, Boolean, String, DateTime, BigInteger
 
 
 class Users(Base):
     __tablename__ = 'users'
     id = Column(Integer, autoincrement=True, primary_key=True)
-    user_id = Column(Integer)
+    user_id = Column(BigInteger)
     subscription_type = Column(Integer)  # 0, 1, 2; без подписки; без жпт; с жпт
     referral_users = Column(Integer)
     bonuses = Column(Integer)

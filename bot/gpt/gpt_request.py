@@ -1,12 +1,14 @@
 import openai
 import config
 import bot.gpt.utils as utils
+import bot.gpt.texts as texts
+
 
 openai.api_key = config.GPT_TOKEN
 
 
 async def ask_gpt(questions):
-    questions = [["system", "Ты хороший помощник. На все вопросы отвечай на русском"]] + questions
+    questions = [["system", texts.prompt]] + questions
     messages = utils.gpt_converter(questions)
     response = await openai.ChatCompletion.acreate(
         model="gpt-4o-mini",

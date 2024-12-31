@@ -8,7 +8,7 @@ from bot.db.schemas.admins import Admins as AdminsDB
 async def create_admin(admin: Admins):
     async with AsyncSession(engine) as session:
         admin_db = AdminsDB(
-            user_nickname=admin.user_id
+            user_nickname=admin.user_nickname
         )
         session.add(admin_db)
         await session.commit()
@@ -19,7 +19,7 @@ async def read_admin(user_id: str):
     async with AsyncSession(engine) as session:
         result = await session.execute(select(AdminsDB).where(AdminsDB.user_nickname == user_id)
         )
-        query = result.scalars().first
+        query = result.scalars().first()
         return query
 
 
@@ -37,6 +37,5 @@ async def delete_admin(user_id: str):
 
 async def get_admin(user_id: str):
     admin = await read_admin(user_id)
-    if admin is None:
-        return False
-    return True
+    print(admin)
+    return admin is not None

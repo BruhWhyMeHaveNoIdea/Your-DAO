@@ -6,6 +6,9 @@ from aiogram.fsm.state import StatesGroup, State
 import bot.gpt.texts as texts
 import bot.gpt.keyboards as keyboards
 from bot.bot import bot
+import bot.user.utils as utils
+from bot.user.keyboards import to_subscription_keyboard
+from bot.user.texts import no_left_time
 
 from bot.gpt.gpt_request import ask_gpt, speech_to_text
 
@@ -30,6 +33,12 @@ async def convert_to_string(file_id):
 async def dialog_with_mentor_callback(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     await state.clear()
+
+    if await utils.free_trial(callback.from_user.id):
+        return await callback.message.answer(
+            text=no_left_time,
+            reply_markup=to_subscription_keyboard
+        )
 
     try:
         await callback.message.edit_text(
