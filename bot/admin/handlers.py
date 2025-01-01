@@ -3,6 +3,8 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
+from aiogram.types.input_file import FSInputFile
+import os
 
 import bot.admin.texts as texts
 import bot.admin.keyboards as keyboards
@@ -24,7 +26,7 @@ async def admin_command(message: Message, state: FSMContext):
     user_id = message.from_user.username
     if await crud_banned.read_banned(user_id):
         return
-    if not await crud_admins.get_admin(user_id):
+    if not (await crud_admins.get_admin(user_id)):
         return await message.answer(
             text=texts.not_access,
             reply_markup=keyboards.user_menu_keyboard
@@ -46,7 +48,7 @@ async def admin_callback(callback: CallbackQuery, state: FSMContext):
     if await crud_banned.read_banned(user_id):
         return
 
-    if not crud_admins.get_admin(user_id):
+    if not(await crud_admins.get_admin(user_id)):
         return await callback.message.answer(
             text=texts.not_access,
             reply_markup=keyboards.user_menu_keyboard
@@ -84,17 +86,19 @@ async def add_admin(message: Message, state: FSMContext):
     if (await state.get_data())["type"] == "username":
         await state.update_data({"nickname": msg})
         await message.answer(
-            text="А теперь введите, какой тип подписки вы хотите ему выдать (1 - Без доступа к GPT, но с доступом ко всему остальному; 2 - Полный доступ)")
+            text="А теперь введите, какой тип подписки вы хотите ему выдать (0 - Забрать доступ; 1 - Без доступа к GPT, но с доступом ко всему остальному; 2 - Полный доступ)")
         await state.update_data({'type': 'subscription'})
     elif (await state.get_data())["type"] == "subscription":
         try:
             msg = int(msg)
         except:
             return await message.answer(text="Введено не число")
-        if msg not in range(1, 3):
+        if msg not in range(0,3):
             return await message.answer(text="Введено не правильное число")
         nickname, subs = (await state.get_data())["nickname"], msg
+        print(nickname, subs)
         await crud_users.update_user(nickname, "subscription_type", subs)
+        await crud_users.update_user(nickname, "sub_days", 30) if subs != 0 else await crud_users.update_user(nickname, "sub_days", 0)
         await state.clear()
         await message.answer(text="Успешно!")
     else:
@@ -130,11 +134,14 @@ async def add_admin(callback: CallbackQuery, state: FSMContext):
 async def add_admin(message: Message, state: FSMContext):
     msg = message.text
     await state.clear()
-    query = Admins(
-        user_nickname=msg
-    )
-    await crud_admins.create_admin(query)
-    await message.answer(text="Успешно!")
+    if await crud_admins.get_admin(msg):
+        return await message.answer(text="Успешно!")
+    else:
+        query = Admins(
+            user_nickname=msg
+        )
+        await crud_admins.create_admin(query)
+        await message.answer(text="Успешно!")
 
 
 @router.callback_query(F.data == "delete_admin")
@@ -178,3 +185,17 @@ async def send_newsletter(message: Message, state: FSMContext):
             print(e)
             print(f"user {i[0]} banned bot")
     await message.answer(text="Успешно!")
+
+
+@router.callback_query(F.data == "statistics")
+async def statistics(callback: CallbackQuery):
+    await callback.answer()
+    await crud_users.return_excel()
+    current_dir = os.getcwd()
+    project_dir = os.path.join(current_dir, "files")
+    file = os.path.join(project_dir,"Database.xlsx")
+    if not os.path.exists(file):
+        await callback.message.answer("Файл не найден")
+        return
+    await callback.message.answer_document(document=FSInputFile(file))
+    os.remove(file)

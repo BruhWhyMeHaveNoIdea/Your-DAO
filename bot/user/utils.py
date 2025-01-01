@@ -1,3 +1,5 @@
+import datetime
+
 import httpx
 import re
 import bot.db.crud.users as crud_users
@@ -30,3 +32,11 @@ async def delete_one_day():
             await crud_users.update_user(i, 'sub_days', user_day)
         else:
             await crud_users.update_user(i, 'subscription_type', 0)
+
+async def free_trial(user_id: int):
+    left_time = (await crud_users.get_reg_date(user_id)) + datetime.timedelta(hours=24)
+    sub_type = await crud_users.get_subscription_type(user_id)
+    now = datetime.datetime.now(tz=datetime.UTC)
+    if (left_time < now) and (sub_type == 0):
+        return True
+    return False
