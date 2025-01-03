@@ -98,7 +98,10 @@ async def add_admin(message: Message, state: FSMContext):
         nickname, subs = (await state.get_data())["nickname"], msg
         print(nickname, subs)
         await crud_users.update_user(nickname, "subscription_type", subs)
-        await crud_users.update_user(nickname, "sub_days", 30) if subs != 0 else await crud_users.update_user(nickname, "sub_days", 0)
+        if subs != 0:
+            await crud_users.update_user(nickname, "sub_days", 30)
+        else:
+            await crud_users.update_user(nickname, "sub_days", 0)
         await state.clear()
         await message.answer(text="Успешно!")
     else:
