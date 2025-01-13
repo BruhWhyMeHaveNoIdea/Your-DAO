@@ -34,7 +34,10 @@ async def delete_one_day():
             await crud_users.update_user(i, 'subscription_type', 0)
 
 async def free_trial(user_id: int):
-    left_time = (await crud_users.get_reg_date(user_id)) + datetime.timedelta(hours=24)
+    if await crud_users.get_reg_date(user_id) is not None:
+        left_time = (await crud_users.get_reg_date(user_id)) + datetime.timedelta(hours=24)
+    else:
+        return False
     sub_type = await crud_users.get_subscription_type(user_id)
     now = datetime.datetime.now(tz=datetime.UTC)
     if (left_time < now) and (sub_type == 0):

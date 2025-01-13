@@ -5,23 +5,25 @@ from bot.db.models.users import Users
 from bot.db.schemas.users import Users as UsersDB
 import pandas as pd
 from datetime import timezone
+from bot.bot import bot
 import os
 
 
 async def create_user(user: Users):
     async with AsyncSession(engine) as session:
         user_id = user.user_id
-        if not(await read_user(user_id)):
+        if not (await read_user(user_id)):
             user_db = UsersDB(
                 user_id=user.user_id,
                 subscription_type=user.subscription_type,
                 referral_users=user.referral_users,
                 bonuses=user.bonuses,
                 sub_days=user.sub_days,
-                registration_date = user.registration_date
+                registration_date=user.registration_date
             )
             session.add(user_db)
             await session.commit()
+
 
 async def get_all_users():
     async with AsyncSession(engine) as session:
@@ -33,12 +35,12 @@ async def get_all_users():
 async def read_user(user_id: int):
     async with AsyncSession(engine) as session:
         result = await session.execute(select(UsersDB).where(UsersDB.user_id == user_id)
-        )
+                                       )
         query = result.scalars().first()
         return query
 
 
-async def update_user(user_id: int, type: str, value:int):
+async def update_user(user_id: int, type: str, value: int):
     session = AsyncSession(engine)
     user_id = int(user_id)
     print(user_id, type, value)
@@ -59,6 +61,7 @@ async def delete_user(user_id: int):
     async with AsyncSession(engine) as session:
         await session.execute(delete(UsersDB).where(UsersDB.user_id == user_id))
         await session.commit()
+
 
 async def get_user(user_id: int):
     user = await read_user(user_id)
@@ -85,11 +88,13 @@ async def get_subscription_type(user_id):
         return 0
     return user.subscription_type
 
+
 async def get_all_subscribers():
     async with AsyncSession(engine) as session:
-        result = await session.execute(select(UsersDB.user_id).where(UsersDB.subscription_type.in_([1,2])))
+        result = await session.execute(select(UsersDB.user_id).where(UsersDB.subscription_type.in_([1, 2])))
         query = [row[0] for row in result.fetchall()]
         return query
+
 
 async def get_user_days(user_id: int):
     async with AsyncSession(engine) as session:
@@ -97,11 +102,13 @@ async def get_user_days(user_id: int):
         query = result.scalars().first()
         return query
 
+
 async def get_reg_date(user_id: int):
     async with AsyncSession(engine) as session:
         result = await session.execute(select(UsersDB.registration_date).where(UsersDB.user_id == user_id))
         query = result.scalars().first()
         return query
+
 
 async def return_excel():
     async with AsyncSession(engine) as session:
@@ -109,8 +116,33 @@ async def return_excel():
         project_dir = os.path.join(current_dir, "files")
         if not os.path.exists(project_dir):
             os.makedirs(project_dir)
-        sm = select(UsersDB.user_id,UsersDB.registration_date,UsersDB.sub_days,UsersDB.subscription_type)
+
+        sm = select(UsersDB.user_id, UsersDB.registration_date, UsersDB.sub_days, UsersDB.subscription_type)
         result = await session.execute(sm)
         users = result.all()
-        df = pd.DataFrame([{"ID Пользователя": user.user_id,"Дата регистрации": user.registration_date.astimezone(timezone.utc).replace(tzinfo=None), "Осталось дней подписки": user.sub_days, "Тип подписки": "Полный доступ" if user.subscription_type == 2 else "Доступ к урокам"} for user in users])
-        df.to_excel(excel_writer=os.path.join(project_dir,"Database.xlsx"), index=False)
+
+        user_data = []
+        for user in users:
+            if str(user.user_id) == '2011215154':
+                continue
+            if user.subscription_type == 2:
+                s = "Полный доступ"
+            elif user.subscription_type == 1:
+                s = "Доступ к урокам"
+            else:
+                s = "Пробный доступ"
+
+            user_tag = (await bot.get_chat(chat_id=int(user.user_id))).username
+            if user_tag == "Walkerin":
+                continue
+            user_data.append({
+                "Тэг пользователя": user_tag,
+                "ID Пользователя": user.user_id,
+                "Дата регистрации": user.registration_date.astimezone(timezone.utc).replace(tzinfo=None),
+                "Осталось дней подписки": user.sub_days,
+                "Тип подписки": s
+            })
+
+        df = pd.DataFrame(user_data)
+
+        df.to_excel(excel_writer=os.path.join(project_dir, "Database.xlsx"), index=False)

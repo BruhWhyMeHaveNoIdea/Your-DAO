@@ -95,13 +95,20 @@ async def add_admin(message: Message, state: FSMContext):
             return await message.answer(text="Введено не число")
         if msg not in range(0,3):
             return await message.answer(text="Введено не правильное число")
-        nickname, subs = (await state.get_data())["nickname"], msg
-        print(nickname, subs)
-        await crud_users.update_user(nickname, "subscription_type", subs)
-        if subs != 0:
-            await crud_users.update_user(nickname, "sub_days", 30)
+        await state.update_data({"subscription": msg})
+        await message.answer(text='Введите кол-во дней для выдачи доступа. Если собираетесь забрать доступ, то вводите 0')
+        await state.update_data({"type": "days"})
+    elif (await state.get_data())["type"] == "days":
+        try:
+            msg = int(msg)
+        except:
+            return await message.answer(text="Введено не число")
+        name, subscription, days = (await state.get_data())["nickname"], int((await state.get_data())["subscription"]), int(msg)
+        await crud_users.update_user(name, "subscription_type", subscription)
+        if subscription != 0:
+            await crud_users.update_user(name, "sub_days", days)
         else:
-            await crud_users.update_user(nickname, "sub_days", 0)
+            await crud_users.update_user(name, "sub_days", 0)
         await state.clear()
         await message.answer(text="Успешно!")
     else:
