@@ -3,10 +3,10 @@ GPT_TOKEN = "***"
 
 
 provider_token = "***"
-user = "admin"
-password = "Walkerin"
-host = "localhost"
-port = 5432
-database = "my_db"
+user = "***"
+password = "***"
+host = "***"
+port = "***"
+database = "***"
 DB_CONNECTION_URL = f"postgresql+asyncpg://{user}:{password}@{host}/{database}"
 
