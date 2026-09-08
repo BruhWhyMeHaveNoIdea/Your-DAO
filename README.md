@@ -1,7 +1,135 @@
-docker-start: sudo docker run -d --name my_db_postgres -e POSTGRES_PASSWORD=083Hdwd3 -e POSTGRES_USER=admin -e POSTGRES_DB=my_first_db -p 5432:5432 postgres
-Where:
-my_db_postgres - container_name;
-POSTGRES_PASSWORD - password for DB;
-POSTGRES_USER - username;
-POSTGRES_DB - DB's name.
-Change everything in config.py
+# Your-DAO
+
+Telegram-бот для образовательного сервиса с платным доступом к материалам и AI-наставником. Пользователь может получить доступ к обучающим материалам, работать с GPT, использовать реферальную систему и управлять подпиской.
+
+## Возможности
+
+- Регистрация пользователей.
+- Реферальная система.
+- Система подписок.
+- Бесплатный пробный период.
+- Доступ к видео и другим учебным материалам.
+- Разделы с образовательными материалами.
+- AI-наставник на базе OpenAI.
+- Общение с GPT в рамках диалога с сохранением истории.
+- Обработка голосовых сообщений и преобразование речи в текст.
+- Проверка активной подписки.
+- Административная панель.
+- Хранение пользователей и данных в PostgreSQL.
+- Автоматическое удаление/обновление данных по расписанию.
+
+## Стек
+
+- Python
+- aiogram 3.10
+- PostgreSQL
+- SQLAlchemy / asyncpg
+- OpenAI API
+- APScheduler
+- FastAPI и дополнительные библиотеки проекта
+
+## Запуск
+
+1. Клонировать репозиторий:
+
+```bash
+git clone https://github.com/BruhWhyMeHaveNoIdea/Your-DAO.git
+cd Your-DAO
+```
+
+2. Создать виртуальное окружение:
+
+```bash
+python -m venv .venv
+```
+
+3. Активировать его.
+
+Windows:
+
+```bash
+.venv\Scripts\activate
+```
+
+Linux/macOS:
+
+```bash
+source .venv/bin/activate
+```
+
+4. Установить зависимости:
+
+```bash
+pip install -r requirements.txt
+```
+
+5. Настроить `config.py`.
+
+Необходимо указать:
+
+```python
+BOT_TOKEN = "TELEGRAM_BOT_TOKEN"
+GPT_TOKEN = "OPENAI_API_KEY"
+provider_token = "PAYMENT_PROVIDER_TOKEN"
+
+user = "POSTGRES_USER"
+password = "POSTGRES_PASSWORD"
+host = "POSTGRES_HOST"
+port = "POSTGRES_PORT"
+database = "POSTGRES_DATABASE"
+```
+
+6. Запустить PostgreSQL и указать корректные параметры подключения в `config.py`.
+
+7. Запустить бота:
+
+```bash
+python main.py
+```
+
+При старте приложение автоматически создаёт необходимые таблицы базы данных и запускает планировщик.
+
+## Использование
+
+Откройте бота в Telegram и выполните:
+
+```text
+/start
+```
+
+После регистрации доступны основные разделы:
+
+- обучающие материалы;
+- видео и дополнительные материалы;
+- игровые и тематические разделы;
+- AI-наставник;
+- подписка;
+- реферальная система.
+
+### AI-наставник
+
+В разделе общения с наставником пользователь может:
+
+1. Запустить новый диалог.
+2. Отправить текстовый вопрос.
+3. При необходимости отправить голосовое сообщение.
+4. Получить ответ от GPT.
+5. Продолжить диалог с сохранением истории.
+6. Очистить историю диалога.
+
+Доступ к AI-функциям и материалам проверяется по статусу подписки.
+
+## Структура
+
+```text
+Your-DAO/
+├── bot/
+│   ├── admin/
+│   ├── db/
+│   ├── gpt/
+│   ├── user/
+│   └── bot.py
+├── config.py
+├── main.py
+└── requirements.txt
+```
